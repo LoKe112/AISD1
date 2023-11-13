@@ -59,4 +59,19 @@ namespace polynom {
         }
 
     };
+    template<typename T>
+    std::ostream& operator << (std::ostream& stream, const Polynomial<T>& a) {
+        for (size_t i = 0; i < a.size(); ++i) {
+            if (i == 0) {
+                stream << a[i];
+            }
+            else if (i == 1) {
+                stream << " + " << a[i] << "*x";
+            }
+            else {
+                stream << " + " << a[i] << "*x^" << i;
+            }
+        }
+        return stream;
+    }
 }
