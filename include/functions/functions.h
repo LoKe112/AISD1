@@ -35,7 +35,7 @@ namespace polynom {
 
         void expand(size_t size) {
             if (size < _size) {
-                throw std::out_of_range("operator[] Index is out of range.");
+                throw std::out_of_range("operator[] Index is too big.");
             }
             auto temp = (new T[size]());
             for (size_t i = 0; i < _size; i++) {
@@ -56,6 +56,94 @@ namespace polynom {
                 return 0;
             }
             return _data[index];
+        }
+
+        Polynomial<T>& operator=(Polynomial<T> a) {
+            swap(a);
+            return *this;
+        }
+
+        Polynomial<T>& operator+= (const Polynomial<T>& a) {
+            if (a.size() > _size) {
+
+                expand(a.size());
+            }
+            for (size_t i = 0; i < a._size; i++) {
+                _data[i] += a[i];
+            }
+            return *this;
+        }
+
+        Polynomial<T>& operator-= (const Polynomial<T>& a) {
+            if (a.size() > _size) {
+                expand(a.size());
+            }
+            for (size_t i = 0; i < a._size; i++) {
+                _data[i] -= a[i];
+            }
+            return *this;
+        }
+
+        Polynomial<T> operator- (Polynomial<T> a) const {
+            return a -= *this;
+        }
+
+        Polynomial<T> operator+ (Polynomial<T> a)  const {
+            return a += *this;
+        }
+
+        Polynomial<T>& operator*(const T& a) {
+            for (size_t i = 0; i < _size; i++) {
+                _data[i] *= a;
+            }
+            return *this;
+        }
+
+        bool operator== (Polynomial<T> a) const {
+            a.shrink_to_fit();
+            Polynomial<T> copy(*this);
+            copy.shrink_to_fit();
+            if (copy._size != a._size) { return false; }
+            for (size_t i = 0; i < a._size; i++) {
+                if (std::abs(_data[i] - a._data[i]) > 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        bool operator!= (const Polynomial<T>& a) const {
+            return !(a == *this);
+        }
+
+        friend Polynomial<T> operator* (const T& a, const Polynomial<T>& pol) {
+            Polynomial<T> res = pol;
+            res = res * a;
+            return res;
+        }
+        T calculation_Polynomial_x(const T& x) {
+            T sum = 0;
+            for (size_t i = 0; i < _size; i++) {
+                sum += _data[i] * pow(x, i);
+            }
+            return sum;
+        }
+
+        void shrink_to_fit() {
+            T zero = T(0);
+            for (size_t i = _size - 1; i > 0; i--) {
+                if (_data[i] != zero) {
+                    i++;
+                    auto temp = (new T[i]());
+                    for (size_t j = 0; j < i; j++) {
+                        temp[j] = _data[j];
+                    }
+                    delete[] _data;
+                    _data = temp;
+                    _size = i;
+                    break;
+                }
+            }
         }
 
     };
