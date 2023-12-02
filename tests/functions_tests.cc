@@ -14,5 +14,12 @@ int main() {
 		cout << i << ':' << b[i] << endl;
 	}
 	cout << b << endl;
+
+	
+
+	complex<double> roots[2];
+	complex<double>* answ = calc_root_2(roots, b);
+	cout << answ[0] << ' ' << answ[1] << endl;
+
 	return 0;
 }

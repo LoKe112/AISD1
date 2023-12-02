@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 #include <complex>
+#include <stdexcept>
+using namespace std;
 
 namespace polynom {
     template<typename T>
@@ -9,6 +11,7 @@ namespace polynom {
     private:
         T* _data;
         size_t _size;
+        inline static const double EPSILION = 0.001;
     public:
         Polynomial(size_t size) : _size(size), _data(new T[size]()) {}
         Polynomial(T* data, size_t size) : _data(data), _size(size) {}
@@ -31,6 +34,14 @@ namespace polynom {
                 expand(index + 1);
             }
             _data[index] = data;
+        }
+
+        size_t get_size() const {
+            return _size;
+        }
+
+        T* get_data() const {
+            return _data;
         }
 
         void expand(size_t size) {
@@ -105,7 +116,7 @@ namespace polynom {
             copy.shrink_to_fit();
             if (copy._size != a._size) { return false; }
             for (size_t i = 0; i < a._size; i++) {
-                if (std::abs(_data[i] - a._data[i]) > 0) {
+                if (std::abs(_data[i] - a._data[i]) > EPSILION) {
                     return false;
                 }
             }
@@ -147,6 +158,36 @@ namespace polynom {
         }
 
     };
+
+    template<typename T>
+    double calc_root_1(Polynomial<T> polynomial) {
+        T* data = polynomial.get_data();
+        if (data[1] == 0) {
+            throw std::out_of_range("calc_root() There is no solution.");
+        }
+        return (-1.0) * data[0] / data[1];
+    };
+
+    template<typename T>
+    complex<double>* calc_root_2(complex<double>* roots, Polynomial<T> polynomial) {
+        T* data = polynomial.get_data();
+        T a = data[2];
+        T b = data[1];
+        T c = data[0];
+        T discriminant = b * b - 4 * a * c;
+        
+        if (discriminant >= 0) {
+            roots[0] = (-b + std::sqrt(discriminant)) / (2.0 * a);
+            roots[1] = (-b - std::sqrt(discriminant)) / (2.0 * a);
+        }
+        else {
+            std::complex<double> complexRoot(-b / (2.0 * a), std::sqrt(-discriminant) / (2 * a));
+            roots[0] = complexRoot;
+            roots[1] = std::conj(complexRoot);
+        }
+        return roots;
+    };
+
     template<typename T>
     std::ostream& operator << (std::ostream& stream, const Polynomial<T>& a) {
         for (size_t i = 0; i < a.size(); ++i) {
@@ -162,4 +203,4 @@ namespace polynom {
         }
         return stream;
     }
-}
+};
