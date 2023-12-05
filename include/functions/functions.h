@@ -14,7 +14,12 @@ namespace polynom {
         inline static const double EPSILION = 0.001;
     public:
         Polynomial(size_t size) : _size(size), _data(new T[size]()) {}
-        Polynomial(T* data, size_t size) : _data(data), _size(size) {}
+        Polynomial(T* data, size_t size) : _data(new T[size]), _size(size) {
+            for (size_t i = 0; i < _size; i++) {
+                _data[i] = data[i];
+            }
+        }
+        
         size_t size() const {
             return _size;
         }
@@ -27,6 +32,13 @@ namespace polynom {
             for (size_t i = 0; i < _size; i++) {
                 _data[i] = a[i];
             }
+        }
+
+        T operator[](size_t index) const {
+            if (_size <= index) {
+                return 0;
+            }
+            return _data[index];
         }
 
         void set(T data, size_t index) {
@@ -46,7 +58,7 @@ namespace polynom {
 
         void expand(size_t size) {
             if (size < _size) {
-                throw std::out_of_range("operator[] Index is too big.");
+                throw std::out_of_range("this power is alredy exsists.");
             }
             auto temp = (new T[size]());
             for (size_t i = 0; i < _size; i++) {
@@ -62,12 +74,7 @@ namespace polynom {
             std::swap(_size, a._size);
         }
 
-        T operator[](size_t index) const {
-            if (_size <= index) {
-                return 0;
-            }
-            return _data[index];
-        }
+        
 
         Polynomial<T>& operator=(Polynomial<T> a) {
             swap(a);
